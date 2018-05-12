@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Statistics of high schools in ETSEIB</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="../static/CSS/Styles.css">
+  <script charset="utf-8" src="../static/d3/d3.v3.min.js"></script>
+  <script src="../static/c3v4/c3.min.js"></script>
+  <script src="../static/Highcharts/code/js/highcharts.js"></script>
+  <link href="../static/c3v4/c3.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body onload="document.getElementById('tabs').scrollIntoView();">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<script type="text/javascript" src="../static/scripts/Functions.js"></script>
+
+
+<div class="bgimg-1 w3-display-container" id="header">
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<h1 class="w3-wide w3-center">ANALYSIS OF HIGH SCHOOLS' PERFORMANCE <br> IN THE INITIAL PHASE OF THE GETI</h1>
+<div style="line-height:77%;"><br>
+</div>
+<br>
+</div>
+
+<ul id="tabs" class="nav nav-tabs centered">
+    <br>
+      <li><a href="{{ url_for('.index', _anchor='project') }}">About the project</a></li>
+      <li><a href="{{ url_for('.students', _anchor='Selection') }}">Students' statistics</a></li>
+      <li class="active"><a href="{{ url_for('.hschool', _anchor='Selection') }}">High schools' statistics</a></li>
+      <li><a href="{{ url_for('.me', _anchor='me') }}">Who am I</a></li>
+</ul>
+
+<div class="tab-content">
+
+<!-- Tab3: Hschool -->
+<div id="hschool" class="tab-pane fade in active w3-container w3-content w3-padding-32 w3-center" style="max-width:1050px">
+    <div id="Selection" class="w3-container w3-light-grey">
+        <div style="line-height:77%;"></div>
+        <h3 class="w3-wide">HIGH SCHOOLS' STATISTICS</h3>
+        <button class="button button4" type="button" onclick="show1('One_hs');">Specific high school</button>
+        <form action="/pubpri" method="post">
+            <button type="submit" class="button button4">Public-Private study</button>
+        </form>
+        <div style="line-height:77%;"></div>
+    
+        <div id="One_hs" {% if (objeto.hsname is none) or (objeto.pubpri) %}hidden{% endif %}>
+            <p class="w3-container" style="margin: 0 05%">Select the high school you want to see</p>
+            <form class="w3-wide" action="/hsname" method="post">
+                <input list="hschools" name="hsname" autocomplete="off">
+                <datalist id="hschools">
+                      {% for elem in objeto.hsch %}
+                        <option value= "{{elem}}">
+                    {% endfor %}
+                </datalist>
+                <input type="submit">
+            </form>
+            <br>
+        </div>
+
+        <div {% if (objeto.hsname is none) and (not objeto.pubpri) %}hidden{% endif %}>
+            <div id="Title1" {% if (objeto.pubpri) %}hidden{% endif %}>
+                <h4 class="w3-wide w3-center">{{objeto.hsname}}'s Statistics</h4>
+            <br>
+            </div>
+    
+            <div id="Title2" {% if (objeto.hsname is not none) and (not objeto.pubpri) %}hidden{% endif %}>
+                <h4 class="w3-wide w3-center">Public-private study</h4>
+            <br>
+            </div>
+
+            <button class="button button4" type="button" onclick="show1('One_sub');hide1('Group');">Specific subject</button>
+            <button class="button button4" type="button" onclick="hide1('One_sub');show1('Group');">Group of subjects by field</button>
+            <form action="/hs_overall" method="post">
+                <button type="submit" class="button button4">Overall</button>
+            </form>
+            <br>
+                <div id="One_sub" class="w3-wide w3-center" {% if objeto.sname is none %}hidden{% endif %}>
+                    <div>
+                    <p>Statistics about a specific subject</p>
+                    <form class="w3-wide w3-padding-32" action="/hs_subject" method="post">
+                        {% for elem in objeto.subj %}
+                            <button type="submit" class="button button4" name="sname" value="{{ elem }}">{{ elem }}</button>
+                        {% endfor %}
+                    </form>
+                    </div>
+                </div>
+                
+                <div id="Group" class="w3-wide w3-center" {% if objeto.gsname is none %}hidden{% endif %}>
+                    <div class="w3-padding-32">                    
+                    <p>Statistics about a group of subjects</p>
+                    <form class="w3-wide w3-padding-32" action="/hs_group_s" method="post">
+                        {% for elem in objeto.group %}
+                            <button type="submit" class="button button4" name="gsname" value="{{ elem }}">{{ elem }}</button>
+                        {% endfor %}
+                    </form>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+    <div id="Results" {% if (objeto.gsname is none) and (objeto.sname is none) and (not objeto.general) %}hidden{% endif %}>
+        <br>
+
+        <div {% if (objeto.pubpri) %}hidden{% endif %}>
+            <div {% if (objeto.general) %}hidden{% endif %}>
+                <h4 class="w3-wide w3-center">{{objeto.hsname}} {{objeto.gsname}} {{objeto.sname}}'s Statistics</h4>
+            </div>
+            <div {% if (not objeto.general) %}hidden{% endif %}>
+            <h4 class="w3-wide w3-center">{{objeto.hsname}} overall Statistics</h4>
+            </div>
+        </div>
+
+        <div {% if (not objeto.pubpri) %}hidden{% endif %}>
+            <div {% if (objeto.general) %}hidden{% endif %}>
+                <h4 class="w3-wide w3-center">Public-private {{objeto.gsname}} {{objeto.sname}}'s Statistics</h4>
+            </div>
+            <div {% if (not objeto.general) %}hidden{% endif %}>
+                <h4 class="w3-wide w3-center">{{objeto.hsname}} overall Statistics</h4>
+            </div>
+        </div>
+
+        <div id="Graphs">
+                <p>High school = {{objeto.hsname}}, Public-private study = {{objeto.pubpri}}, Group of subjects = {{objeto.gsname}}, Subject = {{objeto.sname}}, Overall= {{objeto.general}}</p>
+                
+                <h4>Boxplot of the grades</h4>
+    
+                <script>
+                        var labels = true; // show the text labels beside individual boxplots?
+                        
+                        var margin = {top: 30, right: 50, bottom: 70, left: 50};
+                        var  width = 800 - margin.left - margin.right;
+                        var height = 400 - margin.top - margin.bottom;
+                            
+                        var min = Infinity,
+                            max = -Infinity;
+                            
+                        // parse in the data	
+                        d3.csv("../static/CSV/Chart_data/grade_year.csv?rnd='+(new Date).getTime()", function(error, csv) {
+                            // using an array of arrays with
+                            // data[n][2] 
+                            // where n = number of columns in the csv file 
+                            // data[i][0] = name of the ith column
+                            // data[i][1] = array of values of ith column
+                        
+                            var data = [];
+                            data[0] = [];
+                            data[1] = [];
+                            data[2] = [];
+                            data[3] = [];
+                            data[4] = [];
+                            data[5] = [];
+                            // add more rows if your csv file has more columns
+                        
+                            // add here the header of the csv file
+                            data[0][0] = 2010;
+                            data[1][0] = 2011;
+                            data[2][0] = 2012;
+                            data[3][0] = 2013;
+                            data[4][0] = 2014;
+                            data[5][0] = 2015;
+                            // add more rows if your csv file has more columns
+                        
+                            data[0][1] = [];
+                            data[1][1] = [];
+                            data[2][1] = [];
+                            data[3][1] = [];
+                            data[4][1] = [];
+                            data[5][1] = [];
+                          
+                            csv.forEach(function(x) {
+                                var v1 = Math.floor(x,2010),
+                                    v2 = Math.floor(x,2011),
+                                    v3 = Math.floor(x,2012),
+                                    v4 = Math.floor(x,2013),
+                                    v5 = Math.floor(x,2014),
+                                    v6 = Math.floor(x,2015);
+                                    // add more variables if your csv file has more columns
+                                    
+                                var rowMax = Math.max(Math.max(v1,v2), Math.max(Math.max(v3,v4), Math.max(v5,v6)));
+                                var rowMin = Math.min(Math.min(v1,v2), Math.min(Math.min(v3,v4), Math.min(v5,v6)));
+                        
+                                data[0][1].push(v1);
+                                data[1][1].push(v2);
+                                data[2][1].push(v3);
+                                data[3][1].push(v4);
+                                data[4][1].push(v5);
+                                data[5][1].push(v6);
+                                 // add more rows if your csv file has more columns
+                                 
+                                if (rowMax > max) max = rowMax;
+                                if (rowMin < min) min = rowMin;	
+                            });
+                          
+                            var chart = d3.box()
+                                .whiskers(iqr(1.5))
+                                .height(height)	
+                                .domain([min, max])
+                                .showLabels(labels);
+                        
+                            var svg = d3.select("body").append("svg")
+                                .attr("width", width + margin.left + margin.right)
+                                .attr("height", height + margin.top + margin.bottom)
+                                .attr("class", "box")    
+                                .append("g")
+                                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                            
+                            // the x-axis
+                            var x = d3.scale.ordinal()	   
+                                .domain( data.map(function(d) { console.log(d); return d[0] } ) )	    
+                                .rangeRoundBands([0 , width], 0.7, 0.3); 		
+                        
+                            var xAxis = d3.svg.axis()
+                                .scale(x)
+                                .orient("bottom");
+                        
+                            // the y-axis
+                            var y = d3.scale.linear()
+                                .domain([min, max])
+                                .range([height + margin.top, 0 + margin.top]);
+                            
+                            var yAxis = d3.svg.axis()
+                            .scale(y)
+                            .orient("left");
+                        
+                            // draw the boxplots	
+                            svg.selectAll(".box")	   
+                              .data(data)
+                              .enter().append("g")
+                                .attr("transform", function(d) { return "translate(" +  x(d[0])  + "," + margin.top + ")"; } )
+                              .call(chart.width(x.rangeBand())); 
+                            
+                                  
+                            // add a title
+                            svg.append("text")
+                                .attr("x", (width / 2))             
+                                .attr("y", 0 + (margin.top / 2))
+                                .attr("text-anchor", "middle")  
+                                .style("font-size", "18px") 
+                                //.style("text-decoration", "underline")  
+                                .text("Grade through the years");
+                         
+                             // draw y axis
+                            svg.append("g")
+                                .attr("class", "y axis")
+                                .call(yAxis)
+                                .append("Grade") // and text1
+                                  .attr("transform", "rotate(-90)")
+                                  .attr("y", 6)
+                                  .attr("dy", ".71em")
+                                  .style("text-anchor", "end")
+                                  .style("font-size", "16px") 
+                                  .text("Revenue in €");		
+                            
+                            // draw x axis	
+                            svg.append("g")
+                              .attr("class", "x axis")
+                              .attr("transform", "translate(0," + (height  + margin.top + 10) + ")")
+                              .call(xAxis)
+                              .append("Year")             // text label for the x axis
+                                .attr("x", (width / 2) )
+                                .attr("y",  10 )
+                                .attr("dy", ".71em")
+                                .style("text-anchor", "middle")
+                                .style("font-size", "16px") 
+                                .text("Quarter"); 
+                        });
+                        
+                        // Returns a function to compute the interquartile range.
+                        function iqr(k) {
+                          return function(d, i) {
+                            var q1 = d.quartiles[0],
+                                q3 = d.quartiles[2],
+                                iqr = (q3 - q1) * k,
+                                i = -1,
+                                j = d.length;
+                            while (d[++i] < q1 - iqr);
+                            while (d[--j] > q3 + iqr);
+                            return [i, j];
+                          };
+                        }
+                        
+                </script>
+    
+                <h4>Average grade through the years</h4>
+                <div id="chart1"></div>
+                <script>
+                    var chart = c3.generate({
+                        bindto: '#chart1',
+                        data: {
+                            url: '../static/CSV/Chart_data/grade_year.csv?rnd='+(new Date).getTime(),
+                            x:'AC_YEAR',
+                            type: 'area-spline',
+                        },
+                        axis: {
+                            y: {
+                                label: {
+                                    text:"Grade",
+                                    position: "outer-middle"
+                                },
+                                min:1,
+                                max:9
+                            },
+                            x: {
+                                label: {
+                                    text:"Year",
+                                    position: "outer-center"
+                                },
+                            }
+                        },
+                        size: {
+                            height: 400,
+                            width: 800
+                        },
+                        grid: {
+                            y: {
+                                show:true,
+                                lines: [
+                                    {
+                                        value: 5, 
+                                        text: 'Passing grade'
+                                    }
+                                ]
+                            }
+                        },
+                        bar:{
+                            width:{ratio:0.7}
+                        },        
+                    }); 
+                </script>
+
+                    <div id="aMean">
+                        <h4>aMean through the years</h4>
+                        <div id="chart12"></div>
+                        <script type="text/javascript" src="../static/scripts/chart12.js"></script>
+                    </div>
+
+                    <div id="Alpha">
+                        <h4>Alpha through the years</h4>
+                        <div id="chart13"></div>
+                        <script type="text/javascript" src="../static/scripts/chart13.js"></script>
+                    </div>
+    
+                <h4>Average grade versus access grade</h4>
+                    <div id="chart2"></div>
+                    <script>
+                        var chart = c3.generate({
+                            bindto: '#chart2',
+                            data: {
+                                url: '../static/CSV/Chart_data/grades_access.csv?rnd='+(new Date).getTime(),
+                                x:'AC_GRADE',
+                                type: 'scatter'
+                            },
+                            axis: {
+                                y: {
+                                    label: {
+                                        text:"Average grade",
+                                        position: "outer-middle"
+                                    },
+                                    min:1,
+                                    max:9
+                                },
+                                x: {
+                                    label: {
+                                        text:"Access grade",
+                                        position: "outer-center"
+                                    },
+                                    min:1,
+                                    max:9
+                                }
+                            },
+                            size: {
+                                height: 400,
+                                width: 800
+                            },
+                            zoom: {
+                                enabled: true
+                            }     
+                        }); 
+                    </script>
+    
+                <h4>Grade distribution</h4>
+                <div id="chart10" style="width:100%; height:400px;"></div>
+                <script>
+                    $(function () { 
+                        var myChart = Highcharts.chart('container', {
+                            chart: {
+                                type: 'bar'
+                            },
+                            title: {
+                                text: 'Fruit Consumption'
+                            },
+                            xAxis: {
+                                categories: ['Apples', 'Bananas', 'Oranges']
+                            },
+                            yAxis: {
+                                title: {
+                                text: 'Fruit eaten'
+                                }
+                            }
+                        });
+                    });
+                </script>
+    
+                
+                <h4>Number of enrolled students</h4>
+                <div id="chart3"></div>
+                <script>
+                    var chart = c3.generate({
+                        bindto: '#chart3',
+                        data: {
+                            url: '../static/CSV/Chart_data/number_students.csv?rnd='+(new Date).getTime(),
+                            x:'AC_YEAR',
+                            type: 'bar',
+                            groups: [
+                                ['Men', 'Women']
+                            ],
+                            colors: {
+                                Men: '#008080',
+                                Women: '#ff6347'
+                            }
+                        },
+                        axis: {
+                            y: {
+                                label: {
+                                    text:"Number of students",
+                                    position: "outer-middle"
+                                },
+                            },
+                            x: {
+                                label: {
+                                    text:"Year",
+                                    position: "outer-center"
+                                },
+                            }
+                        },
+                        size: {
+                            height: 400,
+                            width: 800
+                        },
+                        bar:{
+                            width:{ratio:0.7}
+                        },        
+                    }); 
+                </script>
+    
+                {% if not objeto.general %}
+                    <div {% if objeto.general %}hidden{% endif %}>
+                        <h4>% of the Students that passed the first time</h4>
+                            <div id="chart4"></div>
+                        <script>
+                            var chart = c3.generate({
+                                bindto: '#chart4',
+                                data: {
+                                    url: '../static/CSV/Chart_data/passed_first.csv?rnd='+(new Date).getTime(),
+                                    x:'AC_YEAR',
+                                    type: 'bar',
+                                },
+                                axis: {
+                                    y: {
+                                        label: {
+                                            text:"% of the Students",
+                                            position: "outer-middle"
+                                        },
+                                        min:10,
+                                        max:90
+                                    },
+                                    x: {
+                                        label: {
+                                            text:"Year",
+                                            position: "outer-center"
+                                        },
+                                    }
+                                },
+                                size: {
+                                    height: 400,
+                                    width: 800
+                                },
+                                bar:{
+                                    width:{ratio:0.7}
+                                },        
+                            }); 
+                        </script>
+                    </div>
+                {% endif %}
+    
+                {% if objeto.general %}
+                    <div {% if not objeto.general %}hidden{% endif %}>
+                        <h4>Average number of passed subjects the first year</h4>
+                        <div id="chart5"></div>
+                        <script>
+                            var chart = c3.generate({
+                                bindto: '#chart5',
+                                data: {
+                                    url: '../static/CSV/Chart_data/passed_first_all.csv?rnd='+(new Date).getTime(),
+                                    x:'AC_YEAR',
+                                    type: 'bar',
+                                },
+                                axis: {
+                                    y: {
+                                        label: {
+                                            text:"Average number of subjects",
+                                            position: "outer-middle"
+                                        },
+                                    },
+                                    x: {
+                                        label: {
+                                            text:"Year",
+                                            position: "outer-center"
+                                        },
+                                    }
+                                },
+                                size: {
+                                    height: 400,
+                                    width: 800
+                                },
+                                bar:{
+                                    width:{ratio:0.7}
+                                },        
+                            }); 
+                        </script>
+                    
+                        <h4>Alpha parameter versus access grade</h4>
+                        <div id="chart6"></div>
+                        <script>
+                            var chart = c3.generate({
+                                bindto: '#chart6',
+                                data: {
+                                    url: '../static/CSV/Chart_data/alpha_access.csv?rnd='+(new Date).getTime(),
+                                    x:'AC_GRADE',
+                                    type: 'scatter'
+                                },
+                                axis: {
+                                    y: {
+                                        label: {
+                                            text:"Alpha",
+                                            position: "outer-middle"
+                                        },
+                                        min:0.1,
+                                        max:0.9
+                                    },
+                                    x: {
+                                        label: {
+                                            text:"Access grade",
+                                            position: "outer-center"
+                                        },
+                                        min:1,
+                                        max:9
+                                    }
+                                },
+                                size: {
+                                    height: 400,
+                                    width: 800
+                                },
+                                zoom: {
+                                    enabled: true
+                                }     
+                            }); 
+                        </script>
+    
+                        <h4>Alpha*mean versus access grade</h4>
+                        <div id="chart7"></div>
+                        <script>
+                            var chart = c3.generate({
+                                bindto: '#chart7',
+                                data: {
+                                    url: '../static/CSV/Chart_data/amean_access.csv?rnd='+(new Date).getTime(),
+                                    x:'AC_GRADE',
+                                    type: 'scatter'
+                                },
+                                axis: {
+                                    y: {
+                                        label: {
+                                            text:"Alpha*mean",
+                                            position: "outer-middle"
+                                        },
+                                        min:1,
+                                        max:9
+                                    },
+                                    x: {
+                                        label: {
+                                            text:"Access grade",
+                                            position: "outer-center"
+                                        },
+                                        min:1,
+                                        max:9
+                                    }
+                                },
+                                size: {
+                                    height: 400,
+                                    width: 800
+                                },
+                                zoom: {
+                                    enabled: true
+                                }     
+                            }); 
+                        </script>
+    
+                        <h4>Mean and aMean through the years</h4>
+                        <div id="chart8"></div>
+                        <script>
+                            var chart = c3.generate({
+                                bindto: '#chart8',
+                                data: {
+                                    url: '../static/CSV/Chart_data/amean_year.csv?rnd='+(new Date).getTime(),
+                                    x:'AC_YEAR',
+                                    type: 'spline',
+                                },
+                                axis: {
+                                    y: {
+                                        label: {
+                                        text:"Grade",
+                                        position: "outer-middle"
+                                        },
+                                        min:1,
+                                        max:9
+                                    },
+                                    x: {
+                                        label: {
+                                        text:"Year",
+                                        position: "outer-center"
+                                        },
+                                    }
+                                },
+                                size: {
+                                    height: 400,
+                                    width: 800
+                                },    
+                            }); 
+                        </script>
+    
+                        <h4>General statistics through the years</h4>
+                        <div id="chart9"></div>
+                        <script>
+                            var chart = c3.generate({
+                                bindto: '#chart9',
+                                data: {
+                                    url: '../static/CSV/Chart_data/general_overall_year.csv?rnd='+(new Date).getTime(),
+                                    x:'AC_YEAR',
+                                    type: 'bar',
+                                    types: {
+                                        Mean: 'spline',
+                                        aMean: 'spline'
+                                    },
+                                    groups: [
+                                        ['Passed','Failed']
+                                    ]
+                                },
+                                axis: {
+                                    y: {
+                                        label: {
+                                        text:"Grade",
+                                        position: "outer-middle"
+                                        },
+                                        min:1,
+                                        max:9
+                                    },
+                                    x: {
+                                        label: {
+                                        text:"Year",
+                                        position: "outer-center"
+                                        },
+                                    }
+                                },
+                                size: {
+                                    height: 400,
+                                    width: 800
+                                },    
+                            }); 
+                        </script>
+    
+                    </div>
+    
+                {% endif %}
+    
+            </div>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<footer class="w3-center w3-light-grey w3-padding-16">
+        <p class="small"> &copy <a href="https://etseib.upc.edu/ca" target="_blank"> ETSEIB </a> reserves the rights of all the displayed data | Marta Tintoré Gazulla</p>
+            <div style="line-height:75%;"></div>
+            <p class="small">Escola Tècnica Superior d'Enginyeria Industrial de Barcelona; Avda. Diagonal 647, 08028 Barcelona</p>
+            <div style="line-height:75%;"></div>     
+</footer>
+        
+</body>
+</html>
