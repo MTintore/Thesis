@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Statistics of high schools in ETSEIB</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="../static/CSS/Styles.css">
+
+</head>
+
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<script type="text/javascript" src="../static/scripts/Functions.js"></script>
+
+<div class="bgimg-1 container" id="header">
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<h1 class="w3-wide w3-center">ANALYSIS OF HIGH SCHOOLS' PERFORMANCE IN THE INITIAL PHASE OF THE GETI</h1>
+<div style="line-height:77%;"><br>
+</div>
+<br>
+
+<ul class="nav nav-tabs centered">
+      <li {% if objeto.tab=="tab1" %} class="active" {% endif %}><a href="/project"href="#project" data-toggle="tab">About the project</a></li>
+      <li {% if objeto.tab=="tab2" %} class="active" {% endif %}><a href="#students" data-toggle="tab">Students' statistics</a></li>
+      <li {% if objeto.tab=="tab3" %} class="active" {% endif %}><a href="#hschool" data-toggle="tab">High schools' statistics</a></li>
+      <li {% if objeto.tab=="tab4" %} class="active" {% endif %}><a href="#me" data-toggle="tab">Who am I</a></li>
+</ul>
+
+<div class="tab-content">
+
+<!-- Tab1: Project -->
+<div id="project" class="tab-pane fade {% if objeto.tab=="tab1" %} in active {% endif %} w3-container w3-content w3-padding-32" style="max-width:1050px">
+      <h3 class="w3-wide w3-center">ABOUT THE PROJECT</h3>
+      <br>
+	<p class="w3-container" style="margin: 0 05%">This webapp has been developed as part of my Bachelor's thesis to analyze the performance of the students in the initial phase of the GETI Degree (Industrial Technologies Engineering) and how their prior high school affects their results. </p>
+</div>
+
+<!-- Tab2: Students -->
+
+<div id="students" class="tab-pane fade {% if objeto.tab=="tab2" %} in active {% endif %} w3-container w3-content w3-padding-32 w3-center" style="max-width:1050px">
+    <h3 class="w3-wide w3-center">STUDENTS' STATISTICS</h3>
+    <button class="button button4" type="button" onclick="show1('One_sub');hide1('Group');hide1('Average');">Specific subject</button>
+    <button class="button button4" type="button" onclick="hide1('One_sub');show1('Group');hide1('Average');">Group of subjects by field</button>
+    <button class="button button4" type="button" onclick="hide1('One_sub');hide1('Group');show1('Average');">Overall</button>
+    <br><br>
+    <div id="One_sub" style="display: block;" class="w3-center">
+        <p>Statistics about a specific subject</p>
+        <br>
+        <form class="w3-wide" action="/subject" method="post">
+            {% for elem in objeto.subj %}
+                <button type="submit" class="button button4" name="sname" value="{{ elem }}">{{ elem }}</button>
+            {% endfor %}
+        </form>
+        <div {% if objeto.sname is none %}hidden{% endif %}>
+                <br>
+                <h4 class="w3-wide w3-center">{{objeto.sname}}'s Statistics</h4>
+        </div>
+    
+    <div id="Graphs">
+	    <ul class="centered">
+	    <li class="w3-container">Av.grade vs Years (Boxplot)</li>
+	    <li class="w3-container">% Passed first attempt vs Years</li>
+	    <li class="w3-container">Av. number of attempts vs Years</li></ul>
+    </div>
+
+</div>
+
+<div id="Group" style="display: none;" class="w3-wide w3-center">
+<p>Statistics about a group of subjects</p>
+    <br>
+    <form class="w3-wide" action="/subject" method="post">
+        {% for elem in objeto.group %}
+            <button type="submit" class="button button4" name="sname" value="{{ elem }}">{{ elem }}</button>
+        {% endfor %}
+    </form>
+    <div {% if objeto.sname is none %}hidden{% endif %}>
+        <br>
+        <h4 class="w3-wide w3-center">{{objeto.sname}}'s Statistics</h4>
+    </div>
+</div>
+
+<div id="Average" style="display: none;" class="w3-wide w3-center">
+<p>Overall Statistics</p></div>
+
+</div>
+
+<!-- Tab3: Hschool -->
+<div id="hschool" class="tab-pane fade {% if objeto.tab=="tab3" %} in active {% endif %} w3-container w3-content w3-padding-32 w3-center" style="max-width:1050px">
+    <h3 class="w3-wide">HIGH SCHOOLS' STATISTICS</h3>
+    <button class="button button4" type="button" onclick="show1('One_hs');hide1('Pub_pri')">Specific high school</button>
+    <button class="button button4" type="button" onclick="hide1('One_hs');show1('Pub_pri')">Public-Private study</button>
+    <br>
+
+    <div id="One_hs" style="display: block;">
+        <br>
+        <p class="w3-container" style="margin: 0 05%">Select the high school you want to see</p>
+        <br>
+    <form class="w3-wide" action="/hschool" method="post">
+        <input list="hschools" name="hsname" autocomplete="off">
+            <datalist id="hschools">
+  	            {% for elem in objeto.hsch %}
+    	            <option value= "{{elem}}">
+                {% endfor %}
+            </datalist>
+        <input type="submit">
+    </form>
+        <div {% if objeto.hsname is none %}hidden{% endif %}>
+            <br>
+            <h4 class="w3-wide w3-center">{{objeto.hsname}}'s Statistics</h4>
+        </div>
+    </div>
+    <div id="Pub_pri" style="display: none;">
+        <br>
+        <p class="w3-container centered" style="margin: 0 05%">Is there any difference between attending a public or a private high school?</p>
+    </div>
+</div>
+
+<!-- Tab4: Me -->
+<div id="me" class="tab-pane fade {% if objeto.tab=="tab4" %} in active {% endif %} w3-container w3-content w3-padding-32" style="max-width:1050px">
+      <h3 class="w3-wide w3-center">WHO AM I?</h3>
+      <br>
+      <div class="w3-center">
+	    <img src="../static/images/profile.jpg" alt="Profile picture" style="width:15%" class="w3-circle">
+	    <h3 class="w3-wide w3-center w3-padding-32">Marta Tintoré Gazulla</h3>
+      </div>
+      <p class="w3-container" style="margin: 0 05%">I am an Industrial Technologies Engineering Student from ETSEIB University. I have developed this web-app as part of my Bachelor Thesis in Data Mining.</p>
+      <h3 class="w3-wide w3-center w3-padding-32">Contact information</h3>
+
+      <div class="w3-center">
+        <p><a href="https://www.linkedin.com/in/marta-tintor%C3%A9-47b9b8129/" target="_blank"> Marta Tintoré Gazulla</a></p>  
+        <p>Barcelona, Spain</p>
+        <p>Phone: +34 609726452</p>
+        <p>Email: martatintoregazulla@gmail.com</p>
+        <br>
+      </div>
+
+</div>
+
+</div>
+
+<!-- Footer -->
+<footer class="w3-center w3-grey w3-padding-32">
+<p> &copy <a href="https://etseib.upc.edu/ca" target="_blank"> ETSEIB </a> reserves the rights of all the displayed data | Marta Tintoré Gazulla</p>
+	<div class="w3-left-align w3-margin-left w3-small"><p>
+	<br>
+	&nbsp;&nbsp;&nbsp;Escola Tècnica Superior d'Enginyeria Industrial de Barcelona<br>
+	&nbsp;&nbsp;&nbsp;Universitat Politècnica de Catalunya<br>
+	&nbsp;&nbsp;&nbsp;Avda. Diagonal 647, 08028 Barcelona <br>
+	&nbsp;&nbsp;&nbsp;Phone: +34 93 401 66 15
+	</p></div>
+</footer>
+
+</body>
+</html>

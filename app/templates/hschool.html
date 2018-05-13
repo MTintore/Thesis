@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Statistics of high schools in ETSEIB</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="../static/CSS/Styles.css">
+  <script charset="utf-8" src="../static/d3/d3.v3.min.js"></script>
+  <script src="../static/c3v4/c3.min.js"></script>
+  <script src="../static/Highcharts/code/js/highcharts.js"></script>
+  <link href="../static/c3v4/c3.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body onload="document.getElementById('tabs').scrollIntoView();">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<script type="text/javascript" src="../static/scripts/Functions.js"></script>
+
+
+<div class="bgimg-1 w3-display-container" id="header">
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<h1 class="w3-wide w3-center">ANALYSIS OF HIGH SCHOOLS' PERFORMANCE <br> IN THE INITIAL PHASE OF THE GETI</h1>
+<div style="line-height:77%;"><br>
+</div>
+<br>
+</div>
+
+<ul id="tabs" class="nav nav-tabs centered">
+    <br>
+      <li><a href="{{ url_for('.index', _anchor='project') }}">About the project</a></li>
+      <li><a href="{{ url_for('.students', _anchor='Selection') }}">Students' statistics</a></li>
+      <li class="active"><a href="{{ url_for('.hschool', _anchor='Selection') }}">High schools' statistics</a></li>
+      <li><a href="{{ url_for('.me', _anchor='me') }}">Who am I</a></li>
+</ul>
+
+<div class="tab-content">
+
+<!-- Tab3: Hschool -->
+<div id="hschool" class="tab-pane fade in active w3-container w3-content w3-padding-32 w3-center" style="max-width:1050px">
+    <div id="Selection" class="w3-container w3-light-grey">
+        <div style="line-height:77%;"></div>
+        <h3 class="w3-wide">HIGH SCHOOLS' STATISTICS</h3>
+        <button class="button button4" type="button" onclick="show1('One_hs');">Specific high school</button>
+        <form action="/pubpri" method="post">
+            <button type="submit" class="button button4">Public-Private study</button>
+        </form>
+        <div style="line-height:77%;"></div>
+    
+        <div id="One_hs" {% if (objeto.hsname is none) or (objeto.pubpri) %}hidden{% endif %}>
+            <p class="w3-container" style="margin: 0 05%">Select the high school you want to see</p>
+            <form class="w3-wide" action="/hsname" method="post">
+                <input list="hschools" name="hsname" autocomplete="off">
+                <datalist id="hschools">
+                      {% for elem in objeto.hsch %}
+                        <option value= "{{elem}}">
+                    {% endfor %}
+                </datalist>
+                <input type="submit">
+            </form>
+            <br>
+        </div>
+
+        <div {% if (objeto.hsname is none) and (not objeto.pubpri) %}hidden{% endif %}>
+            <div id="Title1" {% if (objeto.pubpri) %}hidden{% endif %}>
+                <h4 class="w3-wide w3-center">{{objeto.hsname}}'s Statistics</h4>
+            <br>
+            </div>
+    
+            <div id="Title2" {% if (objeto.hsname is not none) and (not objeto.pubpri) %}hidden{% endif %}>
+                <h4 class="w3-wide w3-center">Public-private study</h4>
+            <br>
+            </div>
+
+            <button class="button button4" type="button" onclick="show1('One_sub');hide1('Group');">Specific subject</button>
+            <button class="button button4" type="button" onclick="hide1('One_sub');show1('Group');">Group of subjects by field</button>
+            <form action="/hs_overall" method="post">
+                <button type="submit" class="button button4">Overall</button>
+            </form>
+            <br>
+                <div id="One_sub" class="w3-wide w3-center" {% if objeto.sname is none %}hidden{% endif %}>
+                    <div>
+                    <p>Statistics about a specific subject</p>
+                    <form class="w3-wide w3-padding-32" action="/hs_subject" method="post">
+                        {% for elem in objeto.subj %}
+                            <button type="submit" class="button button4" name="sname" value="{{ elem }}">{{ elem }}</button>
+                        {% endfor %}
+                    </form>
+                    </div>
+                </div>
+                
+                <div id="Group" class="w3-wide w3-center" {% if objeto.gsname is none %}hidden{% endif %}>
+                    <div class="w3-padding-32">                    
+                    <p>Statistics about a group of subjects</p>
+                    <form class="w3-wide w3-padding-32" action="/hs_group_s" method="post">
+                        {% for elem in objeto.group %}
+                            <button type="submit" class="button button4" name="gsname" value="{{ elem }}">{{ elem }}</button>
+                        {% endfor %}
+                    </form>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+    <div id="Results" {% if (objeto.gsname is none) and (objeto.sname is none) and (not objeto.general) %}hidden{% endif %}>
+        <br>
+
+        <div {% if (objeto.pubpri) %}hidden{% endif %}>
+                <div style="line-height:77%;"><br></div>
+                <div id="Title1" {% if (objeto.sname is none) %}hidden{% endif %}>
+                    <h3 class="w3-wide w3-center">{{objeto.hsname}} {{objeto.sname}}'s Statistics</h3>
+                </div>
+                <div id="Title2" {% if (objeto.gsname is none) %}hidden{% endif %}>
+                    <h3 class="w3-wide w3-center">{{objeto.hsname}} {{objeto.gsname}}'s Statistics</h3>
+                </div>
+                <div id="Title3" {% if (not objeto.general) %}hidden{% endif %}>
+                    <h3 class="w3-wide w3-center">{{objeto.hsname}} Overall Statistics</h3>
+                </div>
+        </div>
+
+        <div {% if (not objeto.pubpri) %}hidden{% endif %}>
+                <div style="line-height:77%;"><br></div>
+                <div id="Title1" {% if (objeto.sname is none) %}hidden{% endif %}>
+                    <h3 class="w3-wide w3-center">Public-private {{objeto.sname}}'s Statistics</h3>
+                </div>
+                <div id="Title2" {% if (objeto.gsname is none) %}hidden{% endif %}>
+                    <h3 class="w3-wide w3-center">Public-private {{objeto.gsname}}'s Statistics</h3>
+                </div>
+                <div id="Title3" {% if (not objeto.general) %}hidden{% endif %}>
+                    <h3 class="w3-wide w3-center">Public-private overall Statistics</h3>
+                </div>
+        </div>
+
+        <div id="Graphs_hs" {% if objeto.pubpri %}hidden{% endif %}>
+            <div id="Select_graph" {% if objeto.general %}hidden{% endif %}>
+                <button class="button button4 active" type="button" onclick="show1('Evolution');hide1('Histogram');hide1('Vs_access');hide1('Passing_students');">Evolution</button>
+                <button class="button button4" type="button" onclick="hide1('Evolution');show1('Histogram');hide1('Vs_access');hide1('Passing_students');">Distribution</button>
+                <button class="button button4" type="button" onclick="hide1('Evolution');hide1('Histogram');show1('Vs_access');hide1('Passing_students');">Vs access grade</button>
+                <button class="button button4" type="button" onclick="hide1('Evolution');hide1('Histogram');hide1('Vs_access');show1('Passing_students');">How many students ...?</button>
+            </div>
+        
+            <div id="Select_graph2" {% if not objeto.general %}hidden{% endif %}>
+                <button class="button button4 active" type="button" onclick="show1('Evolution');hide1('Histogram');hide1('Alpha');hide1('Vs_access');hide1('Passing_students');">Evolution</button>
+                <button class="button button4" type="button" onclick="hide1('Evolution');show1('Histogram');hide1('Alpha');hide1('Vs_access');hide1('Passing_students');">Distribution</button>
+                <button class="button button4" type="button" onclick="hide1('Evolution');hide1('Histogram');show1('Alpha');hide1('Vs_access');hide1('Passing_students');">Mean and alpha</button>
+                <button class="button button4" type="button" onclick="hide1('Evolution');hide1('Histogram');hide1('Alpha');show1('Vs_access');hide1('Passing_students');">Vs access grade</button>
+                <button class="button button4" type="button" onclick="hide1('Evolution');hide1('Histogram');hide1('Alpha');hide1('Vs_access');show1('Passing_students');">How many students ...?</button>
+            </div>
+
+        <div id="Graphs_pp" {% if not objeto.pubpri %}hidden{% endif %}>
+            <div id="Select_graph" {% if objeto.general %}hidden{% endif %}>
+                <button class="button button4 active" type="button" onclick="show1('Evolution');hide1('Histogram');hide1('Vs_access');hide1('Passing_students');">Evolution</button>
+                <button class="button button4" type="button" onclick="hide1('Evolution');show1('Histogram');hide1('Vs_access');hide1('Passing_students');">Distribution</button>
+                <button class="button button4" type="button" onclick="hide1('Evolution');hide1('Histogram');show1('Vs_access');hide1('Passing_students');">Vs access grade</button>
+                <button class="button button4" type="button" onclick="hide1('Evolution');hide1('Histogram');hide1('Vs_access');show1('Passing_students');">How many students ...?</button>
+            </div>
+                
+            <div id="Select_graph2" {% if not objeto.general %}hidden{% endif %}>
+                <button class="button button4 active" type="button" onclick="show1('Evolution');hide1('Histogram');hide1('Alpha');hide1('Vs_access');hide1('Passing_students');">Evolution</button>
+                <button class="button button4" type="button" onclick="hide1('Evolution');show1('Histogram');hide1('Alpha');hide1('Vs_access');hide1('Passing_students');">Distribution</button>
+                <button class="button button4" type="button" onclick="hide1('Evolution');hide1('Histogram');show1('Alpha');hide1('Vs_access');hide1('Passing_students');">Mean and alpha</button>
+                <button class="button button4" type="button" onclick="hide1('Evolution');hide1('Histogram');hide1('Alpha');show1('Vs_access');hide1('Passing_students');">Vs access grade</button>
+                <button class="button button4" type="button" onclick="hide1('Evolution');hide1('Histogram');hide1('Alpha');hide1('Vs_access');show1('Passing_students');">How many students ...?</button>
+            </div>
+                
+        <div id="Evolution" style="display: block;">
+
+            <div style="line-height:77%;"><br></div>
+            <div {% if (objeto.general) %}hidden{% endif %}>
+                <h4 class="w3-wide w3-center">Average grade evolution through the years</h4>
+            </div>
+            <div {% if (not objeto.general) %}hidden{% endif %}>
+                <h4 class="w3-wide w3-center">Average mean evolution through the years</h4>
+            </div>
+            <div style="line-height:77%;"><br></div>
+
+                <div id="Grade_spline">
+                    <div id="Grade_spline"></div>
+                    <script type="text/javascript" src="../static/scripts/Grade_spline.js"></script>
+                </div>
+                
+                <div id="Boxplot!!!!!!!!!!!!!!!!!!!!!!!">
+                    <script type="text/javascript" src="../static/scripts/box.js"></script>
+                    <script type="text/javascript" src="../static/scripts/Boxplot.js"></script>
+                </div>
+
+        </div>
+
+        <div id="Histogram" style="display: none;">
+            <div {% if (objeto.general) %}hidden{% endif %}>
+                <h4 class="w3-wide w3-center">Grade distribution</h4>
+            </div>
+            <div {% if (not objeto.general) %}hidden{% endif %}>
+                <h4 class="w3-wide w3-center">Mean distribution</h4>
+            </div>
+            <div id="Histogram" ></div>
+            <script type="text/javascript" src="../static/scripts/Histogram.js"></script>
+        </div>
+
+        {% if objeto.general %}
+        <div id="Alpha">
+            <h4>aMean through the years</h4>
+            <div id="chart12"></div>
+            <script type="text/javascript" src="../static/scripts/chart12.js"></script>
+        
+            <h4>Alpha through the years</h4>
+            <div id="chart13"></div>
+            <script type="text/javascript" src="../static/scripts/chart13.js"></script>
+        </div>
+        {% endif %}
+    
+        <div id="Vs_access">
+
+            <div id="Grade_access!!!!!!!!!">
+                <div {% if (objeto.general) %}hidden{% endif %}>
+                    <h4 class="w3-wide w3-center">Average grade versus access grade</h4>
+                </div>
+                <div {% if (not objeto.general) %}hidden{% endif %}>
+                    <h4 class="w3-wide w3-center">Mean versus access grade</h4>
+                </div>
+
+                <div id="chart2"></div>
+                <script type="text/javascript" src="../static/scripts/Grade_access2.js"></script>
+            </div>
+        
+            {% if objeto.general %}
+                <div id="Alpha_access!!!!">
+                    <h4>Alpha parameter versus access grade</h4>
+                    <div id="chart6"></div>
+                    <script type="text/javascript" src="../static/scripts/chart6.js"></script>
+                </div>
+
+                <div id="aMean_access!!!!!!!!!!">
+                    <h4>aMean versus access grade</h4>
+                    <div id="chart7"></div>
+                    <script type="text/javascript" src="../static/scripts/chart7.js"></script>
+                </div>
+            {% endif %}
+        </div>
+
+        <div id="Passing_students" style="display: block;">
+
+            <div id="Multiple_columns">
+                <h4 class="w3-wide w3-center">How many students pass the first time?</h4>
+                <div id="chart3"></div>
+                <script type="text/javascript" src="../static/scripts/chart333.js"></script>
+            </div>
+
+            {% if objeto.general %}
+                <div id="Passed_subjects">
+                    <h4>Average number of passed subjects the first year</h4>
+                    <div id="chart5"></div>
+                    <script type="text/javascript" src="../static/scripts/chart5.js"></script>
+                </div>
+            {% endif %}
+        </div>
+    
+            </div>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<footer class="w3-center w3-light-grey w3-padding-16">
+        <p class="small"> &copy <a href="https://etseib.upc.edu/ca" target="_blank"> ETSEIB </a> reserves the rights of all the displayed data | Marta Tintoré Gazulla</p>
+            <div style="line-height:75%;"></div>
+            <p class="small">Escola Tècnica Superior d'Enginyeria Industrial de Barcelona; Avda. Diagonal 647, 08028 Barcelona</p>
+            <div style="line-height:75%;"></div>     
+</footer>
+        
+</body>
+</html>
